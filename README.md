@@ -5,3 +5,7 @@
 - How the deps map stored - https://www.omnivirt.com/blog/post-3d-photo-android/
 - Viewer 1: https://www.clicktorelease.com/code/depth-player/
 - Viewer 2: http://depthy.me/#/sample/tunnel
+
+## local preview
+
+	python3 -m http.server
