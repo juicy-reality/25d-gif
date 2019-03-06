@@ -17,6 +17,10 @@
       display: flex;
       align-items: center;
     }
+    #canvas {
+      width: 500px;
+      padding: 75px 12px 12px 12px;
+    }
     </style>
     </head>
   <body>
@@ -27,8 +31,11 @@
             <h2>Original fb</h2>
             <div class="fb-post" data-href="https://www.facebook.com/nuuneoi/posts/10216478033879546" data-width="500" data-show-text="true"><blockquote cite="https://www.facebook.com/nuuneoi/posts/10216478033879546" class="fb-xfbml-parse-ignore"><p>3D Photo Captured by iPhone X #1</p>Опубліковано <a href="https://www.facebook.com/nuuneoi">Sittiphol Phanvilai</a>&nbsp;<a href="https://www.facebook.com/nuuneoi/posts/10216478033879546">Неділя, 14 жовтня 2018 р.</a></blockquote></div>
           </div>
-          <div class="col-md">
+          <div class="col-md" >
             <h2>2½d gif copy</h2>
+            <div class="border rounded" id="canvas">
+              <p><a href="https://www.omnivirt.com/blog/post-3d-photo-android/">image source</a></p>
+            </div>
           </div>
         </div>
       </div>
@@ -41,6 +48,36 @@
     <!-- FB -->
     <div id="fb-root"></div>
     <script async defer src="https://connect.facebook.net/uk_UA/sdk.js#xfbml=1&version=v3.2&appId=543950855954497"></script>
+    <!-- OUR -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/102/three.min.js"></script>
+    <script>
+      var width = 474;
+      var height = 631;
 
+      var scene = new THREE.Scene();
+      var camera = new THREE.PerspectiveCamera(75, width / height, 0.1, 1000);
+
+      var renderer = new THREE.WebGLRenderer();
+      renderer.setSize(width, height);
+      $('#canvas').append(renderer.domElement);
+
+      var geometry = new THREE.BoxGeometry(1, 1, 1);
+      var material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
+      var cube = new THREE.Mesh(geometry, material);
+      scene.add(cube);
+
+      camera.position.z = 5;
+
+      var animate = function () {
+        requestAnimationFrame(animate);
+
+        cube.rotation.x += 0.01;
+        cube.rotation.y += 0.01;
+
+        renderer.render(scene, camera);
+      };
+
+      animate();
+    </script>
   </body>
 </html>
