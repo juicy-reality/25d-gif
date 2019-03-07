@@ -50,6 +50,26 @@
     <script async defer src="https://connect.facebook.net/uk_UA/sdk.js#xfbml=1&version=v3.2&appId=543950855954497"></script>
     <!-- OUR -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/102/three.min.js"></script>
+
+    <script id="vertShader" type="x-shader/x-vertex">
+        varying vec2 vUv;
+
+        void main() {
+            vUv = uv;
+            gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+        }
+    </script>
+
+    <script id="fragShader" type="x-shader/x-fragment">
+        uniform sampler2D color;
+
+        varying vec2 vUv;
+
+        void main() {
+            gl_FragColor = texture2D(color, vUv);
+        }
+    </script>
+
     <script>
       var WIDTH = 474;
       var HIEGHT = 631;
@@ -66,9 +86,7 @@
 
       // viewpoint change
       $('#canvas canvas').mousemove(function(e) {
-        // relative position
-        // magic number
-        // so black bars do not apear on sides
+        // magic number, so black bars do not apear on sides
         var maxX = 0.057;
         var maxY = maxX * HIEGHT / WIDTH;
 
@@ -83,9 +101,20 @@
         camera.position.y = y * maxY;
       });
 
-      var geometry = new THREE.PlaneGeometry(WIDTH / HIEGHT, 1, 1, 1);
-      var texture = new THREE.TextureLoader().load('image.jpeg');
-      var material = new THREE.MeshBasicMaterial({ map: texture });
+      // Material
+      var uniforms = {
+          color: {
+              type: "t",
+              value: new THREE.TextureLoader().load('image.jpeg')
+          }
+      };
+      var material = new THREE.ShaderMaterial({
+        uniforms: uniforms,
+        vertexShader: $("#vertShader").text(),
+        fragmentShader: $("#fragShader").text()
+      });
+
+      var geometry = new THREE.PlaneGeometry(WIDTH / HIEGHT, 1, 2, 2);
       var plane = new THREE.Mesh(geometry, material);
       scene.add(plane);
 

@@ -9,3 +9,7 @@
 ## local preview
 
 	python3 -m http.server
+
+## side notes
+
+	image is biger then vieport by 7,5-8,0%
