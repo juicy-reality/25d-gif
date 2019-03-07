@@ -59,9 +59,10 @@
         void main() {
             vUv = uv;
             vec4 pos = vec4(position, 1.0);
-            pos.z = texture2D(depth,vUv).r * 0.7;
-            pos.x *= (1. - pos.z);
-            pos.y *= (1. - pos.z);
+            pos.z = (texture2D(depth,vUv).r - 1.0) * 5.0;
+            float k = 1.0 - pos.z;
+            pos.x *= k;
+            pos.y *= k;
             gl_Position = projectionMatrix * modelViewMatrix * pos;
         }
     </script>
@@ -79,7 +80,7 @@
     <script>
       var WIDTH = 474;
       var HIEGHT = 631;
-      var DEPTH_SCALE = 3;
+      var DEPTH_SCALE = 1;
 
       // the FOV to fit the image height
       var scale = 0.925; // fb magic number
@@ -94,7 +95,7 @@
       // viewpoint change
       $('#canvas canvas').mousemove(function(e) {
         // magic number, so black bars do not apear on sides
-        var maxX = 0.057;
+        var maxX = 0.053;
         var maxY = maxX * HIEGHT / WIDTH;
 
         var rect = e.target.getBoundingClientRect();
@@ -104,8 +105,8 @@
         x = x /  WIDTH - 0.5;
         y = 0.5 - y /  HIEGHT;
 
-        camera.position.x = x * maxX;
-        camera.position.y = y * maxY;
+        camera.position.x = - x * maxX;
+        camera.position.y = - y * maxY;
         camera.lookAt(0, 0, 0);
       });
 
