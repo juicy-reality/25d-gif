@@ -19,7 +19,7 @@
     }
     #canvas {
       width: 500px;
-      padding: 75px 12px 12px 12px;
+      padding: 53px 12px 12px 12px;
     }
     </style>
     </head>
@@ -51,20 +51,39 @@
     <!-- OUR -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/102/three.min.js"></script>
     <script>
-      var width = 474;
-      var height = 631;
+      var WIDTH = 474;
+      var HIEGHT = 631;
 
       // the FOV to fit the image height
       var scale = 0.925; // fb magic number
       var fov = 2 * 180 / Math.PI * Math.atan(scale / 2);
       var scene = new THREE.Scene();
-      var camera = new THREE.PerspectiveCamera(fov, width / height, 0.1, 1000);
+      var camera = new THREE.PerspectiveCamera(fov, WIDTH / HIEGHT, 0.1, 1000);
 
       var renderer = new THREE.WebGLRenderer();
-      renderer.setSize(width, height);
+      renderer.setSize(WIDTH, HIEGHT);
       $('#canvas').append(renderer.domElement);
 
-      var geometry = new THREE.PlaneGeometry(width / height, 1, 1, 1);
+      // viewpoint change
+      $('#canvas canvas').mousemove(function(e) {
+        // relative position
+        // magic number
+        // so black bars do not apear on sides
+        var maxX = 0.057;
+        var maxY = maxX * HIEGHT / WIDTH;
+
+        var rect = e.target.getBoundingClientRect();
+        var x = e.clientX - rect.left; //x position within the element.
+        var y = e.clientY - rect.top;  //y position within the element.
+
+        x = x /  WIDTH - 0.5;
+        y = 0.5 - y /  HIEGHT;
+
+        camera.position.x = x * maxX;
+        camera.position.y = y * maxY;
+      });
+
+      var geometry = new THREE.PlaneGeometry(WIDTH / HIEGHT, 1, 1, 1);
       var texture = new THREE.TextureLoader().load('image.jpeg');
       var material = new THREE.MeshBasicMaterial({ map: texture });
       var plane = new THREE.Mesh(geometry, material);
@@ -74,9 +93,6 @@
 
       var animate = function () {
         requestAnimationFrame(animate);
-
-        // cube.rotation.x += 0.01;
-        // cube.rotation.y += 0.01;
 
         renderer.render(scene, camera);
       };
