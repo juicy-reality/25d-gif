@@ -59,7 +59,7 @@
         void main() {
             vUv = uv;
             vec4 pos = vec4(position, 1.0);
-            pos.z = texture2D(depth,vUv).r * 0.25;
+            pos.z = texture2D(depth,vUv).r * 0.7;
             pos.x *= (1. - pos.z);
             pos.y *= (1. - pos.z);
             gl_Position = projectionMatrix * modelViewMatrix * pos;
@@ -106,6 +106,7 @@
 
         camera.position.x = x * maxX;
         camera.position.y = y * maxY;
+        camera.lookAt(0, 0, 0);
       });
 
       // Material
