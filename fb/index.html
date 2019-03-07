@@ -54,9 +54,15 @@
     <script id="vertShader" type="x-shader/x-vertex">
         varying vec2 vUv;
 
+        uniform sampler2D depth;
+
         void main() {
             vUv = uv;
-            gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+            vec4 pos = vec4(position, 1.0);
+            pos.z = texture2D(depth,vUv).r * 0.25;
+            pos.x *= (1. - pos.z);
+            pos.y *= (1. - pos.z);
+            gl_Position = projectionMatrix * modelViewMatrix * pos;
         }
     </script>
 
@@ -73,6 +79,7 @@
     <script>
       var WIDTH = 474;
       var HIEGHT = 631;
+      var DEPTH_SCALE = 3;
 
       // the FOV to fit the image height
       var scale = 0.925; // fb magic number
@@ -106,6 +113,10 @@
           color: {
               type: "t",
               value: new THREE.TextureLoader().load('image.jpeg')
+          },
+          depth: {
+              type: "t",
+              value: new THREE.TextureLoader().load('depth.png')
           }
       };
       var material = new THREE.ShaderMaterial({
@@ -114,7 +125,7 @@
         fragmentShader: $("#fragShader").text()
       });
 
-      var geometry = new THREE.PlaneGeometry(WIDTH / HIEGHT, 1, 2, 2);
+      var geometry = new THREE.PlaneGeometry(WIDTH / HIEGHT, 1, WIDTH / DEPTH_SCALE, HIEGHT / DEPTH_SCALE);
       var plane = new THREE.Mesh(geometry, material);
       scene.add(plane);
 
