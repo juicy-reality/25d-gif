@@ -1,4 +1,9 @@
 # 25d-gif
+
+## Demo
+
+http://denys-potapov.github.io/25d-gif/fb/
+
 ## Inspiration
 
 - How image rendered - https://medium.com/@akella/how-facebook-3d-photos-work-8424cf48f061
@@ -12,4 +17,4 @@
 
 ## side notes
 
-	image is biger then vieport by 7,5-8,0%
+Image is biger then vieport by 7,5-8,0%
