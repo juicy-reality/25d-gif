@@ -22,7 +22,6 @@ def convert(input, output, start, max_count):
     count = 0
     
     print('fps', fps)
-    print('size', frame.shape)
     while success:
         print('Processing frame: ', count)
 
