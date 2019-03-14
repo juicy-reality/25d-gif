@@ -5,3 +5,7 @@
 ## Join color
 
 	python3 joincolor.py "bike/color/*.jpg" bike_color.jpg
+
+## Join depth
+
+	python3 joindepth.py "bike/depthn/*.npy" bike_depth.png
