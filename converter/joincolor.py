@@ -8,20 +8,26 @@ import math
 def join(input, output):
     FULL_SIZE = 4096
     FRAME_WIDTH = 512
-    COLUMNS_PER_ROW = int(math.ceil(FULL_SIZE / FRAME_WIDTH))
+    COLUMNS_PER_ROW = int(math.floor(FULL_SIZE / FRAME_WIDTH))
 
     inputs = sorted(glob.glob(input))
     
     # get size from first frame
     frame = cv2.imread(inputs[0], cv2.IMREAD_COLOR)
     height, width, _ = frame.shape
-    print('h w', height, width)
 
     # double
     width = width * 2
     height = round(height / (width / FRAME_WIDTH))
     width = FRAME_WIDTH
-    print('h w', height, width)
+    print("""h w
+    color: {{
+        source: "{}",
+        width: {} / {},
+        height: {} / {},
+        per_row: {}
+    }}
+    """.format(output, width, FULL_SIZE, height, FULL_SIZE, COLUMNS_PER_ROW))
 
     # prepare the result
     result = np.zeros((FULL_SIZE, FULL_SIZE, 3), np.uint8)
