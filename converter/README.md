@@ -1,6 +1,6 @@
 ## Extract frames
 
-	python3 extract.py bike.mp4 bike --start 134 --count 10
+	extract.py bike.mp4 bike --start 106 --count 112 --skip 2
 
 ## Join color
 

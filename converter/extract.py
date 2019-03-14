@@ -4,7 +4,7 @@ import os
 import numpy as np
 
 
-def convert(input, output, start, max_count):
+def convert(input, output, start, max_count, skip):
     video = cv2.VideoCapture(input)
 
     # create folders
@@ -30,14 +30,18 @@ def convert(input, output, start, max_count):
 
         # prepare for depth
         for_depth = cv2.resize(frame, (672, 192))
-        cv2.imwrite(output + '/depth/' + output + "%d.png" % count, for_depth)
+        cv2.imwrite(output + '/depth/' + output + "%03d.png" % count, for_depth)
 
         # save left
         c_width = int(width / 2)
         left = np.copy(frame[:, :c_width])        
-        cv2.imwrite(output + '/color/' + output + "%d.jpg" % count, left)
+        cv2.imwrite(output + '/color/' + output + "%03d.jpg" % count, left)
 
-        # next frame 
+        # skip frames
+        for i in range(skip):
+            success, frame = video.read()
+        
+        # next frames
         success, frame = video.read()
         count += 1
         if count >= max_count:
@@ -59,5 +63,7 @@ if __name__ == '__main__':
 
     parser.add_argument('--count', type=int, default=1, help='max frames')
 
+    parser.add_argument('--skip', type=int, default=0, help='skip frames')
+
     args = parser.parse_args()
-    convert(args.input, args.output, args.start, args.count)
+    convert(args.input, args.output, args.start, args.count, args.skip)

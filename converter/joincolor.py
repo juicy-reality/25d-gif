@@ -20,6 +20,8 @@ def join(input, output):
     width = width * 2
     height = round(height / (width / FRAME_WIDTH))
     width = FRAME_WIDTH
+
+    print("max count", int(math.floor(FULL_SIZE / height)) * COLUMNS_PER_ROW - 1)
     print("""h w
     color: {{
         source: "{}",
@@ -33,6 +35,7 @@ def join(input, output):
     result = np.zeros((FULL_SIZE, FULL_SIZE, 3), np.uint8)
 
     for i, input in enumerate(inputs):
+        print('frame', i)
         frame = cv2.imread(input, cv2.IMREAD_COLOR)
         frame = cv2.resize(frame, (width, height))
 
