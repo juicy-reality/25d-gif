@@ -29,7 +29,7 @@
         <div class="row">
           <div class="col-md" >
             <div class="border rounded" id="canvas">
-
+            <p>click on image to pause</p>
             </div>
           </div>
         </div>
@@ -49,12 +49,15 @@
     <script id="vertShader" type="x-shader/x-vertex">
         varying vec2 vUv;
 
+        uniform vec2 d_offset;
+        uniform vec2 d_size;
+
         uniform sampler2D depth;
 
         void main() {
             vUv = uv;
             vec4 pos = vec4(position, 1.0);
-            pos.z = (texture2D(depth,vUv).r - 1.0) * 5.0;
+            pos.z = (texture2D(depth, d_offset + vUv * d_size).r - 1.0) * 5.0;
             float k = 1.0 - pos.z;
             pos.x *= k;
             pos.y *= k;
@@ -63,15 +66,15 @@
     </script>
 
     <script id="fragShader" type="x-shader/x-fragment">
-        uniform vec2 offset;
-        uniform vec2 size;
+        uniform vec2 c_offset;
+        uniform vec2 c_size;
 
         uniform sampler2D color;
 
         varying vec2 vUv;
 
         void main() {
-            gl_FragColor = texture2D(color, offset + vUv * size);
+            gl_FragColor = texture2D(color, c_offset + vUv * c_size);
         }
     </script>
 
@@ -81,14 +84,18 @@
       var WIDTH = 512;
       var HIEGHT = 288;
       
-      var DEPTH = 'bike_for_depth1.png';
       var DEPTH_WIDTH = 672 / 2;
       var DEPTH_HEIGHT = 192;
 
       var image = {
-        fps: 29.97,
+        fps: 29.97 / 3, // skip frames
         frames: 112,
-
+        depth: {
+          source: "bike_depth.png",
+          width: 336 / 4096,
+          height: 192 / 4096,
+          per_row: 8
+        },
         color: {
             source: "bike_color.jpg",
             width: 512 / 4096,
@@ -109,6 +116,14 @@
       var renderer = new THREE.WebGLRenderer();
       renderer.setSize(WIDTH, HIEGHT);
       $('#canvas').append(renderer.domElement);
+      
+      $('#canvas canvas').click(function(){
+        if (clock.running) {
+          clock.stop();
+        } else {
+          clock.start();
+        }
+      });
 
       // viewpoint change
       $('#canvas canvas').mousemove(function(e) {
@@ -130,15 +145,17 @@
 
       // Material
       var uniforms = {
-          offset: { value: new THREE.Vector2(0, 1) },
-          size: { value: new THREE.Vector2(0, 1) },
+          c_offset: { value: new THREE.Vector2(0, 1) },
+          c_size: { value: new THREE.Vector2(0, 1) },
+          d_offset: { value: new THREE.Vector2(0, 1) },
+          d_size: { value: new THREE.Vector2(0, 1) },
           color: {
               type: "t",
               value: new THREE.TextureLoader().load(image.color.source)
           },
           depth: {
               type: "t",
-              value: new THREE.TextureLoader().load(DEPTH)
+              value: new THREE.TextureLoader().load(image.depth.source)
           }
       };
 
@@ -162,10 +179,15 @@
         var row = Math.floor(frame / image.color.per_row);
         var col = frame % image.color.per_row;
 
-        uniforms.offset.value.x = image.color.width * col;
-        uniforms.offset.value.y = 1.0 - image.color.height * (row + 1);
-        uniforms.size.value.x = image.color.width;
-        uniforms.size.value.y = image.color.height;
+        uniforms.c_offset.value.x = image.color.width * col;
+        uniforms.c_offset.value.y = 1.0 - image.color.height * (row + 1);
+        uniforms.c_size.value.x = image.color.width;
+        uniforms.c_size.value.y = image.color.height;
+
+        uniforms.d_offset.value.x = image.depth.width * col;
+        uniforms.d_offset.value.y = 1.0 - image.depth.height * (row + 1);
+        uniforms.d_size.value.x = image.depth.width;
+        uniforms.d_size.value.y = image.depth.height;
 
         renderer.render(scene, camera);
       };
