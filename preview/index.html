@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+
+    <title>2,5d gif</title>
+    <style>
+    .vertical-center {
+      min-height: 100%;  /* Fallback for browsers do NOT support vh unit */
+      min-height: 100vh; /* These two lines are counted as one :-)       */
+
+      display: flex;
+      align-items: center;
+    }
+    #canvas {
+      width: 536px;
+      padding: 12px 12px 12px 12px;
+    }
+    </style>
+    </head>
+  <body>
+    <div class="vertical-center">
+      <div class="container">
+        <div class="row">
+          <div class="col-md" >
+            <div class="border rounded" id="canvas">
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+    <!-- FB -->
+    <div id="fb-root"></div>
+    <script async defer src="https://connect.facebook.net/uk_UA/sdk.js#xfbml=1&version=v3.2&appId=543950855954497"></script>
+    <!-- OUR -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/102/three.min.js"></script>
+
+    <script id="vertShader" type="x-shader/x-vertex">
+        varying vec2 vUv;
+
+        uniform sampler2D depth;
+
+        void main() {
+            vUv = uv;
+            vec4 pos = vec4(position, 1.0);
+            pos.z = (texture2D(depth,vUv).r - 1.0) * 5.0;
+            float k = 1.0 - pos.z;
+            pos.x *= k;
+            pos.y *= k;
+            gl_Position = projectionMatrix * modelViewMatrix * pos;
+        }
+    </script>
+
+    <script id="fragShader" type="x-shader/x-fragment">
+        uniform vec2 offset;
+        uniform vec2 size;
+
+        uniform sampler2D color;
+
+        varying vec2 vUv;
+
+        void main() {
+            gl_FragColor = texture2D(color, offset + vUv * size);
+        }
+    </script>
+
+    <script>
+      // (720, 1280, 3)
+
+      var WIDTH = 512;
+      var HIEGHT = 288;
+      
+      var DEPTH = 'bike_for_depth1.png';
+      var DEPTH_WIDTH = 672 / 2;
+      var DEPTH_HEIGHT = 192;
+
+      var image = {
+        fps: 29.97,
+        frames: 112,
+
+        color: {
+            source: "bike_color.jpg",
+            width: 512 / 4096,
+            height: 288 / 4096,
+            per_row: 8
+        }
+      };
+
+      // time intervals
+      var clock = new THREE.Clock;
+
+      // the FOV to fit the image height
+      var scale = 0.925; // fb magic number
+      var fov = 2 * 180 / Math.PI * Math.atan(scale / 2);
+      var scene = new THREE.Scene();
+      var camera = new THREE.PerspectiveCamera(fov, WIDTH / HIEGHT, 0.1, 1000);
+
+      var renderer = new THREE.WebGLRenderer();
+      renderer.setSize(WIDTH, HIEGHT);
+      $('#canvas').append(renderer.domElement);
+
+      // viewpoint change
+      $('#canvas canvas').mousemove(function(e) {
+        // magic number, so black bars do not apear on sides
+        var maxX = 0.053;
+        var maxY = maxX * HIEGHT / WIDTH;
+
+        var rect = e.target.getBoundingClientRect();
+        var x = e.clientX - rect.left; //x position within the element.
+        var y = e.clientY - rect.top;  //y position within the element.
+
+        x = x /  WIDTH - 0.5;
+        y = 0.5 - y /  HIEGHT;
+
+        camera.position.x = - x * maxX;
+        camera.position.y = - y * maxY;
+        camera.lookAt(0, 0, 0);
+      });
+
+      // Material
+      var uniforms = {
+          offset: { value: new THREE.Vector2(0, 1) },
+          size: { value: new THREE.Vector2(0, 1) },
+          color: {
+              type: "t",
+              value: new THREE.TextureLoader().load(image.color.source)
+          },
+          depth: {
+              type: "t",
+              value: new THREE.TextureLoader().load(DEPTH)
+          }
+      };
+
+      var material = new THREE.ShaderMaterial({
+        uniforms: uniforms,
+        vertexShader: $("#vertShader").text(),
+        fragmentShader: $("#fragShader").text()
+      });
+
+      var geometry = new THREE.PlaneGeometry(WIDTH / HIEGHT, 1, DEPTH_WIDTH, DEPTH_HEIGHT);
+      var plane = new THREE.Mesh(geometry, material);
+      scene.add(plane);
+
+      camera.position.z = 1;
+
+      var animate = function () {
+        requestAnimationFrame(animate);
+
+        var time = clock.getElapsedTime();
+        var frame = Math.round(time * image.fps) % image.frames;
+        var row = Math.floor(frame / image.color.per_row);
+        var col = frame % image.color.per_row;
+
+        uniforms.offset.value.x = image.color.width * col;
+        uniforms.offset.value.y = 1.0 - image.color.height * (row + 1);
+        uniforms.size.value.x = image.color.width;
+        uniforms.size.value.y = image.color.height;
+
+        renderer.render(scene, camera);
+      };
+
+      animate();
+    </script>
+  </body>
+</html>
