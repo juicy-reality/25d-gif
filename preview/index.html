@@ -131,6 +131,10 @@
         var maxX = 0.053;
         var maxY = maxX * HIEGHT / WIDTH;
 
+        // for horizontal images
+        var maxY = 0.053;
+        var maxX = maxY * WIDTH / HIEGHT;
+
         var rect = e.target.getBoundingClientRect();
         var x = e.clientX - rect.left; //x position within the element.
         var y = e.clientY - rect.top;  //y position within the element.
