@@ -21,16 +21,29 @@
       width: 536px;
       padding: 12px 12px 12px 12px;
     }
+    button {
+      margin: 0.3em !important;
+    }
     </style>
     </head>
   <body>
     <div class="vertical-center">
       <div class="container">
         <div class="row">
-          <div class="col-md" >
+
+        </div>
+        <div class="row">
+          <div class="col-md-6" >
             <div class="border rounded" id="canvas">
-            <p>click on image to pause</p>
+              <p class="float-right">click on image to pause</p>
+              <div class="form-group form-check">
+                <input type="checkbox" class="form-check-input" id="enabled" checked>
+                <label class="form-check-label" for="exampleCheck1" checked>Toggle 2,5d</label>
+              </div>
             </div>
+          </div>
+          <div class="col-md-6" id="images">
+
           </div>
         </div>
       </div>
@@ -41,8 +54,8 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
     <!-- FB -->
-    <div id="fb-root"></div>
-    <script async defer src="https://connect.facebook.net/uk_UA/sdk.js#xfbml=1&version=v3.2&appId=543950855954497"></script>
+    <!-- <div id="fb-root"></div>
+    <script async defer src="https://connect.facebook.net/uk_UA/sdk.js#xfbml=1&version=v3.2&appId=543950855954497"></script>-->
     <!-- OUR -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/102/three.min.js"></script>
 
@@ -81,25 +94,27 @@
     <script>
       // (720, 1280, 3)
 
-      var WIDTH = 512;
-      var HIEGHT = 288;
+      var enabled = true;
+
+      var WIDTH = 480;
+      var HIEGHT = 436;
       
       var DEPTH_WIDTH = 672 / 2;
       var DEPTH_HEIGHT = 192;
 
       var image = {
-        fps: 29.97 / 3, // skip frames
-        frames: 112,
+        fps: 25, // skip frames
+        frames: 50,
         depth: {
-          source: "bike_depth.png",
-          width: 336 / 4096,
-          height: 192 / 4096,
+          source: "bandage_2_depth.png",
+          width: 480 / 4096,
+          height: 436 / 4096,
           per_row: 8
         },
         color: {
-            source: "bike_color.jpg",
-            width: 512 / 4096,
-            height: 288 / 4096,
+            source: "bandage_2_color.jpg",
+            width: 480 / 4096,
+            height: 436 / 4096,
             per_row: 8
         }
       };
@@ -125,14 +140,43 @@
         }
       });
 
+      $('#enabled').change(function (e) {
+        enabled = this.checked;
+        if (!enabled) {
+          camera.position.x = 0;
+          camera.position.y = 0;
+          camera.lookAt(0, 0, 0);
+        }
+      });
+
+      function changeImage(e) {
+        var name = $(e.target).text();
+        var c = new THREE.TextureLoader().load(name + '_color.jpg');
+        material.uniforms.color.value = c;
+        var d = new THREE.TextureLoader().load(name + '_depth.png');
+        material.uniforms.depth.value = d;
+      };
+
+      // 'ambush_2', 'ambush_4', 'ambush_6',
+      var images = ['alley_1', 'alley_2',  'ambush_5',  'ambush_7', 'bamboo_1', 'bamboo_2', 'bandage_1', 'bandage_2', 'cave_2', 'cave_4', 'market_2', 'market_5', 'market_6', 'mountain_1', 'shaman_2', 'shaman_3', 'sleeping_1', 'sleeping_2', 'temple_2', 'temple_3'];
+
+      $.each(images, function (index, value) {
+        var b = $('<button class="btn btn-primary">' + value + '</button>');
+        b.click(changeImage)
+        $('#images').append(b);
+      });
+
       // viewpoint change
       $('#canvas canvas').mousemove(function(e) {
+        if (!enabled) {
+          return;
+        }
         // magic number, so black bars do not apear on sides
         var maxX = 0.053;
         var maxY = maxX * HIEGHT / WIDTH;
 
         // for horizontal images
-        var maxY = 0.053;
+        var maxY = 0.08;
         var maxX = maxY * WIDTH / HIEGHT;
 
         var rect = e.target.getBoundingClientRect();
@@ -179,7 +223,11 @@
         requestAnimationFrame(animate);
 
         var time = clock.getElapsedTime();
-        var frame = Math.round(time * image.fps) % image.frames;
+        var frame = Math.round(time * image.fps) % (image.frames * 2 - 2);
+        if (frame >= image.frames) {
+          frame = image.frames * 2 - 2 - frame;
+        }
+
         var row = Math.floor(frame / image.color.per_row);
         var col = frame % image.color.per_row;
 
