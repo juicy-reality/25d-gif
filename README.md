@@ -18,3 +18,14 @@ http://denys-potapov.github.io/25d-gif/fb/
 ## side notes
 
 Image is biger then vieport by 7,5-8,0%
+
+## Todo
+
+[ ] move to jr githuib org
+[ ] scale for mobile
+[ ] clamp depth (10% percentile?)
+[ ] generate preview on depth gen
+[ ] style 
+[ ] replace mouse move to https://github.com/wagerfield/parallax
+[ ] add google analytics
+[ ] add github link
