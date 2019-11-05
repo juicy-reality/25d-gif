@@ -21,9 +21,11 @@
       width: 536px;
       padding: 12px 12px 12px 12px;
     }
-    button {
-      margin: 0.3em !important;
+    #images img {
+      width: 25%;
+      padding: 1px;
     }
+
     </style>
     </head>
   <body>
@@ -52,20 +54,16 @@
     <!-- Optional JavaScript -->
     <!-- jQuery first, then Popper.js, then Bootstrap JS -->
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
-    <!-- FB -->
-    <!-- <div id="fb-root"></div>
-    <script async defer src="https://connect.facebook.net/uk_UA/sdk.js#xfbml=1&version=v3.2&appId=543950855954497"></script>-->
-<!-- Global site tag (gtag.js) - Google Analytics -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=UA-151537967-1"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
 
-  gtag('config', 'UA-151537967-1');
-</script>
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-151537967-1"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'UA-151537967-1');
+    </script>
 
     <!-- Place this tag in your head or just before your close body tag. -->
     <script async defer src="https://buttons.github.io/buttons.js"></script>
@@ -118,13 +116,13 @@
         fps: 25, // skip frames
         frames: 50,
         depth: {
-          source: "bandage_2_depth.png",
+          source: "sleeping_2_depth.png",
           width: 480 / 4096,
           height: 436 / 4096,
           per_row: 8
         },
         color: {
-            source: "bandage_2_color.jpg",
+            source: "sleeping_2_color.jpg",
             width: 480 / 4096,
             height: 436 / 4096,
             per_row: 8
@@ -162,18 +160,18 @@
       });
 
       function changeImage(e) {
-        var name = $(e.target).text();
+        var name = $(e.target).data('img');
         var c = new THREE.TextureLoader().load(name + '_color.jpg');
         material.uniforms.color.value = c;
         var d = new THREE.TextureLoader().load(name + '_depth.png');
         material.uniforms.depth.value = d;
       };
 
-      // 'ambush_2', 'ambush_4', 'ambush_6',
-      var images = ['alley_1', 'alley_2',  'ambush_5',  'ambush_7', 'bamboo_1', 'bamboo_2', 'bandage_1', 'bandage_2', 'cave_2', 'cave_4', 'market_2', 'market_5', 'market_6', 'mountain_1', 'shaman_2', 'shaman_3', 'sleeping_1', 'sleeping_2', 'temple_2', 'temple_3'];
+      // 'ambush_2', 'ambush_4', 'ambush_6', 'market_5', 
+      var images = ['alley_1', 'alley_2',  'ambush_5',  'ambush_7', 'bamboo_1', 'bamboo_2', 'bandage_1', 'bandage_2', 'cave_2', 'cave_4', 'market_2', 'mountain_1', 'shaman_2', 'shaman_3', 'sleeping_1', 'sleeping_2', 'temple_2', 'temple_3'];
 
       $.each(images, function (index, value) {
-        var b = $('<button class="btn btn-primary">' + value + '</button>');
+        var b = $('<a href="#' + value + '"><img src="' + value + '_preview.jpg" data-img="' + value + '"></a>');
         b.click(changeImage)
         $('#images').append(b);
       });
