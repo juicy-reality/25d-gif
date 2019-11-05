@@ -7,50 +7,65 @@
 
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <meta property="og:title"         content="2,5d gif" />
+    <meta property="og:description"   content="2,5d gif preview" />
+    <meta property="og:image"         content="https://juicy-reality.github.io/25d-gif/preview/fb.jpg" />
 
     <title>2,5d gif</title>
     <style>
-    .vertical-center {
-      min-height: 100%;  /* Fallback for browsers do NOT support vh unit */
-      min-height: 100vh; /* These two lines are counted as one :-)       */
-
-      display: flex;
-      align-items: center;
+    .container {
+      max-width: 500px;
+      min-height: 100vh;
+      background-color: white;
+      padding-left: 0;
+      padding-right: 0;
     }
-    #canvas {
-      width: 536px;
-      padding: 12px 12px 12px 12px;
+    body {
+      background-color: rgb(233, 235, 238);
+    }
+    #images {
+      padding-top: 15px;
     }
     #images img {
       width: 25%;
       padding: 1px;
     }
-
+    .gutters {
+      padding: 30px;
+      padding-bottom: 0px;
+    }
     </style>
     </head>
   <body>
-    <div class="vertical-center">
-      <div class="container">
-        <div class="row">
-
+    <div class="container border">
+      <div class="row">
+        <div class="col gutters">
+          <h2>2.5d gif preview</h2>
+          <p>Move your mouse over the image or 
+            tilt phone to change view. Click on image to pause
+          </p>
         </div>
-        <div class="row">
-          <div class="col-md-6" >
-            <div class="border rounded" id="canvas">
-              <p class="float-right">click on image to pause</p>
-              <div class="form-group form-check">
-                <input type="checkbox" class="form-check-input" id="enabled" checked>
-                <label class="form-check-label" for="exampleCheck1" checked>Toggle 2,5d</label>
-              </div>
-            </div>
-          </div>
-          <div class="col-md-6" id="images">
-
-          </div>
-        </div>
-        <a class="github-button" href="https://github.com/juicy-reality/25d-gif" data-icon="octicon-star" data-size="large" data-show-count="true" aria-label="Star juicy-reality/25d-gif on GitHub">Star</a>
       </div>
+      <div class="row">
+        <div class="col">
+          <div id="canvas">
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col" id="images"></div>
+      </div>
+            
+      <div class="row">
+        <div class="col gutters">
+           <a class="github-button" href="https://github.com/juicy-reality/25d-gif" data-icon="octicon-star" data-size="large" data-show-count="true" aria-label="Star juicy-reality/25d-gif on GitHub">Star</a>
+         
+          <iframe src="https://www.facebook.com/plugins/share_button.php?href=https%3A%2F%2Fjuicy-reality.github.io%2F25d-gif%2Fpreview%2F&layout=button_count&size=large&appId=894782467554077&width=87&height=28" width="87" height="28" style="border:none;overflow:hidden" scrolling="no" frameborder="0" allowTransparency="true" allow="encrypted-media"></iframe>
+        </div>
+      </div>
+     
     </div>
+
     <!-- Optional JavaScript -->
     <!-- jQuery first, then Popper.js, then Bootstrap JS -->
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
@@ -141,7 +156,9 @@
       var renderer = new THREE.WebGLRenderer();
       renderer.setSize(WIDTH, HIEGHT);
       $('#canvas').append(renderer.domElement);
-      
+      $('#canvas canvas').css('width', '100%');
+      $('#canvas canvas').css('height', '');
+
       $('#canvas canvas').click(function(){
         if (clock.running) {
           clock.stop();
