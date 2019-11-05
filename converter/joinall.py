@@ -107,18 +107,25 @@ def join_depth(inputs, output, width):
 COLOR_SOURCE = '/home/denys/projects/jr/depth/MPI-Sintel-training_images/training/final/'
 DEPTH_SOURCE = '/home/denys/projects/jr/depth/MPI-Sintel-depth-training-20150305/training/depth/'
 
-COLOR_DESTINATION = '/home/denys/prj-shared/personal/25d-gif/preview/'
-DEPTH_DESCTINATION = '/home/denys/prj-shared/personal/25d-gif/preview/'
+DESTINATION = '/home/denys/prj-shared/personal/25d-gif/preview/'
 
 
 for filename in glob.glob(COLOR_SOURCE + '*'):
     name = filename.split('/')[-1]
-    print(name)
-    continue
+
     color_s = COLOR_SOURCE + name + '/*'
     inputs = sorted(glob.glob(color_s))
-    join_color(inputs, COLOR_DESTINATION + name + '_color.jpg', 480)
+    join_color(inputs, DESTINATION + name + '_color.jpg', 480)
 
+    # save preview
+    frame = cv2.imread(inputs[0], cv2.IMREAD_COLOR)
+    orig_width = frame.shape[1]
+    dx = (orig_width - 480) // 2
+    cv2.imwrite(DESTINATION + name + '_preview.jpg', frame[:, dx:dx+480])
+
+    # depth
     depth_s = DEPTH_SOURCE + name + '/*'
     inputs = sorted(glob.glob(depth_s))
-    join_depth(inputs, DEPTH_DESCTINATION + name + '_depth.png', 480)
+    join_depth(inputs, DESTINATION + name + '_depth.png', 480)
+
+    exit(0)
