@@ -1,6 +1,4 @@
-import argparse
 import cv2
-import os
 import numpy as np
 import glob
 import math
@@ -44,6 +42,12 @@ def join_color(inputs, output, width):
     cv2.imwrite(output, result)
 
 
+def clamp(img, mask):
+    data = np.ma.array(img, mask=~mask).compressed()
+
+    return np.percentile(data, (5, 95))
+
+
 def join_depth(inputs, output, width):
     FULL_SIZE = 4096
 
@@ -68,6 +72,16 @@ def join_depth(inputs, output, width):
     ret, _ = cv2.threshold(img, 0, 255, cv2.THRESH_BINARY+cv2.THRESH_OTSU)
     front_point = mn + (mx - mn) * (ret / 255)
     FRONT_COLOR = 145  # from apple
+    # clamp deth
+    front_mask = (comb < front_point)
+    if front_mask.sum() == 0:
+        f_mn, f_mx = mn, front_point
+        b_mn, b_mx = front_point, mx
+    else:
+        f_mn, f_mx = clamp(comb, front_mask)
+        b_mn, b_mx = clamp(comb, ~front_mask)
+# # eturn np.clip(frame, mn, mx), mn, mx
+#     print(mn, b_mn, b_mx, f_mn, f_mx, mx)
 
     print("""h w
     color: {{
@@ -86,14 +100,16 @@ def join_depth(inputs, output, width):
 
         front_mask = (frame < front_point)
 
+        front = np.clip(frame, f_mn, f_mx)
         frame[front_mask] = (
             FRONT_COLOR +
-            (front_point - frame[front_mask]) /
-            (front_point - mn) * (255 - FRONT_COLOR))
+            (f_mx - front[front_mask]) /
+            (f_mx - f_mn) * (255 - FRONT_COLOR))
 
+        back = np.clip(frame, b_mn, b_mx)
         frame[~front_mask] = (
-            (mx - frame[~front_mask]) /
-            (mx - front_point) * FRONT_COLOR)
+            (b_mx - back[~front_mask]) /
+            (b_mx - b_mn) * FRONT_COLOR)
 
         # place image
         row, col = divmod(i, COLUMNS_PER_ROW)
@@ -128,4 +144,3 @@ for filename in glob.glob(COLOR_SOURCE + '*'):
     inputs = sorted(glob.glob(depth_s))
     join_depth(inputs, DESTINATION + name + '_depth.png', 480)
 
-    exit(0)
