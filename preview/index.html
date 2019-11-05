@@ -47,7 +47,7 @@
         </div>
       </div>
       <div class="row">
-        <div class="col">
+        <div class="col" id="col-can">
           <div id="canvas">
           </div>
         </div>
@@ -83,7 +83,7 @@
     <!-- Place this tag in your head or just before your close body tag. -->
     <script async defer src="https://buttons.github.io/buttons.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/102/three.min.js"></script>
-
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/parallax/3.1.0/parallax.min.js"></script>
     <script id="vertShader" type="x-shader/x-vertex">
         varying vec2 vUv;
 
@@ -159,12 +159,23 @@
       $('#canvas canvas').css('width', '100%');
       $('#canvas canvas').css('height', '');
 
-      $('#canvas canvas').click(function(){
+      $('#col-can').click(function(){
         if (clock.running) {
           clock.stop();
         } else {
           clock.start();
         }
+      });
+
+      var cnv = document.getElementById('canvas');
+      var prlx = new Parallax(cnv, {
+        selector: '.layer',
+        relativeInput: true,
+        clipRelativeInput: true,
+        limitX: 45,
+        limitY: 45,
+        frictionX: 1,
+        frictionY: 1
       });
 
       $('#enabled').change(function (e) {
@@ -193,30 +204,6 @@
         $('#images').append(b);
       });
 
-      // viewpoint change
-      $('#canvas canvas').mousemove(function(e) {
-        if (!enabled) {
-          return;
-        }
-        // magic number, so black bars do not apear on sides
-        var maxX = 0.053;
-        var maxY = maxX * HIEGHT / WIDTH;
-
-        // for horizontal images
-        var maxY = 0.08;
-        var maxX = maxY * WIDTH / HIEGHT;
-
-        var rect = e.target.getBoundingClientRect();
-        var x = e.clientX - rect.left; //x position within the element.
-        var y = e.clientY - rect.top;  //y position within the element.
-
-        x = x /  WIDTH - 0.5;
-        y = 0.5 - y /  HIEGHT;
-
-        camera.position.x = - x * maxX;
-        camera.position.y = - y * maxY;
-        camera.lookAt(0, 0, 0);
-      });
 
       // Material
       var uniforms = {
@@ -247,7 +234,10 @@
       camera.position.z = 1;
 
       var animate = function () {
-        requestAnimationFrame(animate);
+        // update camera position
+        camera.position.x = - prlx.velocityX * 0.08 / 90;
+        camera.position.y = prlx.velocityY * 0.08 / 90;
+        camera.lookAt(0, 0, 0);
 
         var time = clock.getElapsedTime();
         var frame = Math.round(time * image.fps) % (image.frames * 2 - 2);
@@ -269,6 +259,7 @@
         uniforms.d_size.value.y = image.depth.height;
 
         renderer.render(scene, camera);
+        requestAnimationFrame(animate);
       };
 
       animate();

@@ -20,11 +20,11 @@ Image is biger then vieport by 7,5-8,0%
 ## Todo
 
 - [x] move to jr githuib org
-- [ ] scale for mobile
-- [ ] clamp depth (10% percentile?)
+- [x] scale for mobile
+- [x] clamp depth (10% percentile?)
 - [x] generate preview on depth gen
-- [ ] style 
-- [ ] replace mouse move to https://github.com/wagerfield/parallax
+- [x] style 
+- [x] replace mouse move to https://github.com/wagerfield/parallax
 - [x] add google analytics
 - [x] add github link
-- [ ] add fb share
+- [x] add fb share
